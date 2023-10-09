@@ -135,6 +135,12 @@ def get_word_features(word):
             short_shape += shape[i]
     features.append('short-wordshape-' + short_shape)
 
+    if any(c.isdigit() for c in word):
+        features.append('number')
+
+    if '-' in word:
+        features.append('hyphen')
+
     features.append('prefix1-' + word[0])
     if n > 1:
         features.append('prefix2-' + word[:2])
@@ -311,12 +317,12 @@ def viterbi(Y_start, Y_pred):
     t = Y_pred.shape[1]
     V = numpy.empty((n, t))
     BP = numpy.empty((n, t))
-    V[0, :] = Y_start
+    V[0] = Y_start
     for i in range(1, n):
         for j in range(t):
             max_tag, max_prob = 0, -numpy.inf
             for k in range(t):
-                prob = V[i - 1, j] + Y_pred[i - 1, k, j]
+                prob = V[i - 1, k] + Y_pred[i - 1, k, j]
                 if prob > max_prob:
                     max_tag = k
                     max_prob = prob
